@@ -13,9 +13,30 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const appDescription =
+  "Connect on Base, open a cookie, get a rarity-weighted fortune. History and events onchain.";
+
 export const metadata: Metadata = {
-  title: "Fortune Cookie on Base",
-  description: "A tiny onchain Fortune Cookie dApp on Base",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+  ),
+  title: {
+    default: "Fortune Cookie on Base",
+    template: "%s · Fortune Cookie",
+  },
+  description: appDescription,
+  openGraph: {
+    title: "Fortune Cookie on Base",
+    description: appDescription,
+    siteName: "Fortune Cookie",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Fortune Cookie on Base",
+    description: appDescription,
+  },
 };
 
 export default function RootLayout({

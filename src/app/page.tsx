@@ -30,7 +30,10 @@ export default function Home() {
         <section className="fc-card space-y-4">
           <div>
             <h2 className="text-base font-semibold text-zinc-900">Wallet</h2>
-            <p className="mt-1 text-sm text-zinc-500">MetaMask, Base Account, or your browser wallet.</p>
+            <p className="mt-1 text-sm text-zinc-500">
+              Pick a connector, then use <span className="font-medium text-zinc-700">Base mainnet</span> for
+              opens.
+            </p>
           </div>
           <ConnectWallet />
         </section>
@@ -38,7 +41,9 @@ export default function Home() {
         <section className="fc-card space-y-4">
           <div>
             <h2 className="text-base font-semibold text-zinc-900">Open a cookie</h2>
-            <p className="mt-1 text-sm text-zinc-500">Uses Base mainnet — you pay gas only.</p>
+            <p className="mt-1 text-sm text-zinc-500">
+              Transactions run on Base — you pay gas (and the onchain price if the contract sets one).
+            </p>
           </div>
           <OpenCookie />
         </section>

@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "scripts/**",
     "typechain-types/**",
+    "test/**",
+    "e2e/**",
+    "playwright.config.ts",
   ]),
 ]);
 

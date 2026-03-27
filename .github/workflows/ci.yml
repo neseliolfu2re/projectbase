@@ -35,3 +35,12 @@ jobs:
         env:
           # Build succeeds without a real deployed address (UI shows connect/deploy hints).
           NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS: "0x0000000000000000000000000000000000000000"
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: E2E smoke
+        run: npm run test:e2e
+        env:
+          CI: true
+          NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS: "0x0000000000000000000000000000000000000000"

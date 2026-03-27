@@ -17,7 +17,11 @@ export function ConnectWallet() {
 
   if (!isConnected) {
     return (
-      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+      <div className="flex flex-col gap-3">
+        <p className="text-sm text-zinc-500">
+          Choose Phantom, injected, Base Account, or WalletConnect (if configured).
+        </p>
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         {connectors.map((connector) => (
           <button
             key={connector.uid}
@@ -29,6 +33,7 @@ export function ConnectWallet() {
             {isConnecting ? 'Connecting…' : `Connect ${connector.name}`}
           </button>
         ))}
+        </div>
       </div>
     )
   }

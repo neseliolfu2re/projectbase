@@ -17,6 +17,14 @@ import { FORTUNE_COOKIE_ADDRESS, fortuneCookieAbi } from '@/config/fortuneCookie
 
 const ZERO = '0x0000000000000000000000000000000000000000' as const
 
+/** Optional rough USD/ETH for display only (not a price oracle). */
+function usdApproxLabel(wei: bigint, usdPerEth: number): string {
+  const eth = Number(formatEther(wei))
+  if (!Number.isFinite(eth) || !Number.isFinite(usdPerEth)) return ''
+  const usd = eth * usdPerEth
+  return `≈ $${usd < 0.01 ? usd.toFixed(4) : usd.toFixed(2)} USD`
+}
+
 export function OpenCookie() {
   const { isConnected } = useAccount()
   const chainId = useChainId()
@@ -101,7 +109,10 @@ export function OpenCookie() {
   if (chainId !== base.id) {
     return (
       <div className="flex flex-col items-stretch gap-2 sm:items-start">
-        <p className="text-sm text-zinc-600">Switch to Base to open a cookie.</p>
+        <p className="text-sm text-zinc-600">
+          This app uses <span className="font-medium text-zinc-800">Base</span> (chain {base.id}). Switch
+          network to continue.
+        </p>
         <button
           type="button"
           onClick={() => switchChain({ chainId: base.id })}
@@ -135,10 +146,27 @@ export function OpenCookie() {
       ? `${formatEther(priceWei)} ETH`
       : 'free'
 
+  const ethUsdHint = process.env.NEXT_PUBLIC_ETH_USD_HINT
+  const usdPerEth =
+    ethUsdHint !== undefined && ethUsdHint !== '' ? Number(ethUsdHint) : NaN
+  const usdExtra =
+    priceWei !== undefined &&
+    priceWei > 0n &&
+    Number.isFinite(usdPerEth) &&
+    usdPerEth > 0
+      ? usdApproxLabel(priceWei, usdPerEth)
+      : ''
+
   return (
     <div className="flex flex-col items-center gap-3 sm:items-start">
       <p className="text-center text-sm text-zinc-600 sm:text-left">
         Price: <span className="font-medium text-zinc-800">{priceLabel}</span>
+        {usdExtra ? (
+          <>
+            {' '}
+            <span className="text-zinc-500">({usdExtra})</span>
+          </>
+        ) : null}
       </p>
       <button
         type="button"
