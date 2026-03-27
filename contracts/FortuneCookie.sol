@@ -12,6 +12,7 @@ contract FortuneCookie {
     event CookieOpened(address indexed user, uint8 rarity, uint16 messageId, uint64 openedAt, uint64 totalOpened);
 
     address public owner;
+    address public pendingOwner;
     uint256 public priceWei;
     uint16 public immutable messageCount;
 
@@ -19,6 +20,8 @@ contract FortuneCookie {
     mapping(address => uint64) public openedCount;
 
     error NotOwner();
+    error PendingOwnerOnly();
+    error PausedState();
     error InsufficientValue(uint256 required, uint256 provided);
     error InvalidMessageCount();
     error Reentrancy();
@@ -32,8 +35,17 @@ contract FortuneCookie {
 
     uint256 private _status = 1; // nonReentrancy guard: 1 = not entered, 2 = entered
 
+    event OwnershipTransferInitiated(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event Paused(bool paused);
+
     modifier onlyOwner() {
         if (msg.sender != owner) revert NotOwner();
+        _;
+    }
+
+    modifier whenNotPaused() {
+        if (paused) revert PausedState();
         _;
     }
 
@@ -44,8 +56,34 @@ contract FortuneCookie {
         _status = 1;
     }
 
+    bool public paused;
+
+    function transferOwnership(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "ZERO_OWNER");
+        pendingOwner = newOwner;
+        emit OwnershipTransferInitiated(owner, newOwner);
+    }
+
+    function acceptOwnership() external {
+        if (msg.sender != pendingOwner) revert PendingOwnerOnly();
+        address previous = owner;
+        owner = pendingOwner;
+        pendingOwner = address(0);
+        emit OwnershipTransferred(previous, owner);
+    }
+
     function setPrice(uint256 _priceWei) external onlyOwner {
         priceWei = _priceWei;
+    }
+
+    function pause() external onlyOwner {
+        paused = true;
+        emit Paused(true);
+    }
+
+    function unpause() external onlyOwner {
+        paused = false;
+        emit Paused(false);
     }
 
     function withdraw(address payable to) external onlyOwner nonReentrant {
@@ -53,7 +91,7 @@ contract FortuneCookie {
         require(ok, "WITHDRAW_FAILED");
     }
 
-    function openCookie() external payable nonReentrant {
+    function openCookie() external payable nonReentrant whenNotPaused {
         uint256 required = priceWei;
         if (msg.value < required) revert InsufficientValue(required, msg.value);
 
