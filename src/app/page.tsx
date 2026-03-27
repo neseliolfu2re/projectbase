@@ -5,6 +5,7 @@ import { FortuneHistory } from '@/components/FortuneHistory'
 import { FortuneEventFeed } from '@/components/FortuneEventFeed'
 import { WelcomeBanner } from '@/components/WelcomeBanner'
 import { HowItWorks } from '@/components/HowItWorks'
+import { SiteFooter } from '@/components/SiteFooter'
 
 export default function Home() {
   return (
@@ -74,6 +75,8 @@ export default function Home() {
           </code>{' '}
           after deploying the contract.
         </section>
+
+        <SiteFooter />
       </div>
     </main>
   )

@@ -19,3 +19,9 @@ test("how it works section expands", async ({ page }) => {
     page.getByText("Confirm the transaction in your wallet"),
   ).toBeVisible();
 });
+
+test("footer has growth links", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("link", { name: "Build on Base" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Source on GitHub" })).toBeVisible();
+});
