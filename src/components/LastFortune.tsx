@@ -89,17 +89,42 @@ export function LastFortune() {
     return () => clearTimeout(t)
   }, [isRevealing])
 
-  if (!isConnected) return <p className="text-zinc-600">Connect your wallet to see your fortune.</p>
-  if (FORTUNE_COOKIE_ADDRESS === '0x0000000000000000000000000000000000000000') {
+  if (!isConnected) {
     return (
-      <p className="text-zinc-600">
-        Contract address missing. Add <code className="rounded bg-zinc-100 px-1">NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS</code> to{' '}
-        <code className="rounded bg-zinc-100 px-1">.env.local</code>.
-      </p>
+      <section className="fc-card">
+        <h2 className="text-base font-semibold text-zinc-900">Latest cookie</h2>
+        <p className="mt-2 text-sm text-zinc-600">Connect your wallet to see your fortune.</p>
+      </section>
     )
   }
-  if (isLoading && data === undefined) return <p className="text-zinc-600">Loading…</p>
-  if (isError && data === undefined) return <p className="text-zinc-600">Could not read the contract.</p>
+  if (FORTUNE_COOKIE_ADDRESS === '0x0000000000000000000000000000000000000000') {
+    return (
+      <section className="fc-card">
+        <h2 className="text-base font-semibold text-zinc-900">Latest cookie</h2>
+        <p className="mt-2 text-sm text-zinc-600">
+          Contract address missing. Add{' '}
+          <code className="rounded-md bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS</code>{' '}
+          to <code className="rounded-md bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">.env.local</code>.
+        </p>
+      </section>
+    )
+  }
+  if (isLoading && data === undefined) {
+    return (
+      <section className="fc-card">
+        <h2 className="text-base font-semibold text-zinc-900">Latest cookie</h2>
+        <p className="mt-2 text-sm text-zinc-500">Loading…</p>
+      </section>
+    )
+  }
+  if (isError && data === undefined) {
+    return (
+      <section className="fc-card">
+        <h2 className="text-base font-semibold text-zinc-900">Latest cookie</h2>
+        <p className="mt-2 text-sm text-red-600">Could not read the contract.</p>
+      </section>
+    )
+  }
 
   const totalForUser = totalOpened
   const hasFortune = typeof totalOpened === 'bigint' ? totalOpened > 0 : false
@@ -108,7 +133,7 @@ export function LastFortune() {
   return (
     <div
       className={[
-        'w-full relative rounded-2xl border p-5 transition-all duration-300',
+        'fc-card relative w-full transition-all duration-300',
         theme.card,
         theme.glow,
         isRevealing ? 'scale-[1.01] opacity-100' : 'opacity-100',
@@ -122,7 +147,7 @@ export function LastFortune() {
         </div>
       )}
       <div className="flex items-center justify-between gap-4">
-        <h2 className="text-lg font-semibold">Latest cookie</h2>
+        <h2 className="text-base font-semibold text-zinc-900">Latest cookie</h2>
         <span className={['rounded-full border px-3 py-1 text-sm', theme.pill].join(' ')}>
           {rarityLabel(rarityNum)}
         </span>
@@ -133,7 +158,7 @@ export function LastFortune() {
           isRevealing ? 'animate-pulse' : '',
         ].join(' ')}
       >
-        {hasFortune ? message : 'No cookie yet. Tap “Open Fortune Cookie” below.'}
+        {hasFortune ? message : 'No cookie yet. Use “Open a cookie” above.'}
       </p>
       <div className="mt-4 text-sm text-zinc-600">
         <div>

@@ -60,21 +60,38 @@ export function FortuneHistory() {
   const hasMore = totalOpenedNum > start + PAGE_SIZE
 
   if (!isConnected) return null
-  if (isLoading && data === undefined) return <div className="text-zinc-600">Loading history...</div>
-  if (isError && data === undefined) return <div className="text-zinc-600">History read failed.</div>
+  if (isLoading && data === undefined) {
+    return (
+      <section className="fc-card">
+        <h2 className="text-base font-semibold text-zinc-900">Your cookie history</h2>
+        <p className="mt-2 text-sm text-zinc-500">Loading…</p>
+      </section>
+    )
+  }
+  if (isError && data === undefined) {
+    return (
+      <section className="fc-card">
+        <h2 className="text-base font-semibold text-zinc-900">Your cookie history</h2>
+        <p className="mt-2 text-sm text-red-600">Could not load history.</p>
+      </section>
+    )
+  }
 
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border bg-white p-5">
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="text-lg font-semibold">Your Cookie History</h2>
-        <div className="text-sm text-zinc-600">
+    <section className="fc-card flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-100 pb-4">
+        <div>
+          <h2 className="text-base font-semibold text-zinc-900">Your cookie history</h2>
+          <p className="mt-1 text-sm text-zinc-500">Onchain list of opens for this wallet.</p>
+        </div>
+        <div className="text-sm font-medium text-zinc-800">
           Total opened:{' '}
-          {typeof totalOpened === 'bigint' ? totalOpened.toString() : '—'}
+          <span className="tabular-nums">{typeof totalOpened === 'bigint' ? totalOpened.toString() : '—'}</span>
         </div>
       </div>
 
       {fortunes.length === 0 ? (
-        <p className="text-zinc-600">No cookies opened yet. Hit “Open Fortune Cookie” first.</p>
+        <p className="text-sm text-zinc-600">No cookies yet. Open one in the section above.</p>
       ) : (
         <div className="flex flex-col gap-2">
           {fortunes.map((f) => (
@@ -102,11 +119,12 @@ export function FortuneHistory() {
 
       {hasMore && (
         <button
+          type="button"
           onClick={() => setStart((s) => s + PAGE_SIZE)}
-          className="mt-2 rounded-xl border bg-white px-4 py-2 text-sm hover:bg-zinc-50"
+          className="fc-btn-secondary mt-1 self-start"
           disabled={isLoading}
         >
-          Load more
+          {isLoading ? 'Loading…' : 'Load more'}
         </button>
       )}
     </section>

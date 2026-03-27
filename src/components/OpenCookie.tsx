@@ -24,29 +24,48 @@ export function OpenCookie() {
 
   useEffect(() => {
     if (isSuccess) {
-      // Refresh all contract reads (last fortune + history) after successful write.
       queryClient.invalidateQueries()
     }
   }, [isSuccess, queryClient])
 
-  if (!isConnected) return null
-  if (FORTUNE_COOKIE_ADDRESS === '0x0000000000000000000000000000000000000000') return null
+  if (!isConnected) {
+    return (
+      <p className="rounded-lg border border-dashed border-zinc-200 bg-zinc-50/80 px-4 py-3 text-center text-sm text-zinc-500">
+        Connect your wallet above to open a cookie.
+      </p>
+    )
+  }
+
+  if (FORTUNE_COOKIE_ADDRESS === '0x0000000000000000000000000000000000000000') {
+    return (
+      <p className="text-sm text-amber-800">
+        Contract address is not set. Add{' '}
+        <code className="rounded bg-amber-100 px-1 font-mono text-xs">NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS</code> to{' '}
+        <code className="rounded bg-amber-100 px-1 font-mono text-xs">.env.local</code>.
+      </p>
+    )
+  }
 
   if (chainId !== base.id) {
     return (
-      <button
-        onClick={() => switchChain({ chainId: base.id })}
-        className="rounded-xl bg-black px-4 py-2 text-white disabled:opacity-60"
-        disabled={isSwitching}
-      >
-        {isSwitching ? 'Switching...' : 'Switch to Base'}
-      </button>
+      <div className="flex flex-col items-stretch gap-2 sm:items-start">
+        <p className="text-sm text-zinc-600">Switch to Base to open a cookie.</p>
+        <button
+          type="button"
+          onClick={() => switchChain({ chainId: base.id })}
+          className="fc-btn-primary w-full sm:w-auto"
+          disabled={isSwitching}
+        >
+          {isSwitching ? 'Switching…' : 'Switch to Base'}
+        </button>
+      </div>
     )
   }
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-3 sm:items-start">
       <button
+        type="button"
         onClick={() =>
           writeContract({
             address: FORTUNE_COOKIE_ADDRESS,
@@ -57,20 +76,24 @@ export function OpenCookie() {
           })
         }
         disabled={isPending || isConfirming}
-        className="rounded-xl bg-black px-5 py-2.5 text-white disabled:opacity-60"
+        className="fc-btn-primary min-h-[48px] min-w-[200px]"
       >
-        {isPending ? 'Confirm in Wallet...' : isConfirming ? 'Confirming...' : 'Open Fortune Cookie'}
+        {isPending ? 'Confirm in wallet…' : isConfirming ? 'Confirming…' : 'Open fortune cookie'}
       </button>
-      {isSuccess && <p className="text-sm text-zinc-600">Confirmed!</p>}
-      {error && <p className="text-sm text-red-600">{error.message}</p>}
+      {isSuccess && (
+        <p className="text-sm font-medium text-emerald-700" role="status">
+          Confirmed on Base.
+        </p>
+      )}
+      {error && <p className="max-w-full text-center text-sm text-red-600 sm:text-left">{error.message}</p>}
       {hash && (
         <a
-          className="text-sm underline"
+          className="text-sm font-medium text-[#0052ff] underline decoration-blue-200 underline-offset-2 hover:decoration-[#0052ff]"
           href={`https://basescan.org/tx/${hash}`}
           target="_blank"
           rel="noreferrer"
         >
-          View on Basescan
+          View on Basescan →
         </a>
       )}
     </div>
