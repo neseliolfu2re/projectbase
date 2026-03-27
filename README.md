@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fortune Cookie (Base)
 
-## Getting Started
+A small onchain “fortune cookie” dApp on [Base](https://base.org): connect a wallet, open a cookie (transaction), and read a rarity-weighted message. Includes onchain history (`getFortunes`) and an event feed (past logs + live `CookieOpened` events).
 
-First, run the development server:
+## Stack
+
+- **Frontend:** Next.js (App Router), Tailwind CSS, [wagmi](https://wagmi.sh/) + [viem](https://viem.sh/), TanStack Query, `@base-org/account`
+- **Contracts:** Solidity, [Hardhat](https://hardhat.org/)
+
+## Prerequisites
+
+- Node.js 20+ (LTS recommended)
+- A wallet with **Base mainnet ETH** for transactions (gas)
+- Never commit private keys. `.env` / `.env.local` are gitignored.
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create **`.env`** in the project root (deploy / Hardhat):
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+DEPLOYER_PRIVATE_KEY=0x...
+BASE_MAINNET_RPC_URL=https://mainnet.base.org
+```
 
-## Learn More
+Create **`.env.local`** for the Next.js app (public contract address only):
 
-To learn more about Next.js, take a look at the following resources:
+```env
+NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS=0x...
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Command | Description |
+|--------|-------------|
+| `npm run dev` | Next.js dev server |
+| `npm run build` | Production build |
+| `npm run lint` | ESLint |
+| `npm run hh:compile` | Compile Solidity |
+| `npm run hh:deploy:base` | Deploy `FortuneCookie` to Base mainnet |
+| `npm run hh:deploy:baseSepolia` | Deploy to Base Sepolia (if configured) |
 
-## Deploy on Vercel
+After deploy, copy the printed address into `NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS` in `.env.local` and restart `npm run dev`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contract
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Source: `contracts/FortuneCookie.sol`
+- Deploy script: `scripts/deploy.js`
+
+## Security notes
+
+- Do **not** push `.env` or `.env.local` (they are ignored).
+- `DEPLOYER_PRIVATE_KEY` is only for deploying from your machine.
+- The fortune text is resolved off-chain from `messageId` in `src/config/fortuneCookie.ts`; onchain you store ids and rarity.
+
+## Repo
+
+Remote: [github.com/neseliolfu2re/projectbase](https://github.com/neseliolfu2re/projectbase)
