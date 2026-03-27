@@ -9,7 +9,9 @@
     "lint": "eslint",
     "hh:compile": "hardhat compile",
     "hh:deploy:base": "hardhat run scripts/deploy.js --network base",
-    "hh:deploy:baseSepolia": "hardhat run scripts/deploy.js --network baseSepolia"
+    "hh:deploy:baseSepolia": "hardhat run scripts/deploy.js --network baseSepolia",
+    "hh:verify:base": "hardhat run scripts/verify.js --network base",
+    "hh:verify:baseSepolia": "hardhat run scripts/verify.js --network baseSepolia"
   },
   "dependencies": {
     "@base-org/account": "^2.5.3",
