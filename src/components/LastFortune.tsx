@@ -8,6 +8,7 @@ import {
   fortuneCookieAbi,
   fortuneMessages,
 } from '@/config/fortuneCookie'
+import { ShareFortune } from '@/components/ShareFortune'
 
 function rarityLabel(rarity?: number) {
   if (rarity === undefined) return '—'
@@ -172,6 +173,9 @@ export function LastFortune() {
             : '—'}
         </div>
       </div>
+      {hasFortune && message ? (
+        <ShareFortune fortuneText={message} rarityLabel={rarityLabel(rarityNum)} />
+      ) : null}
     </div>
   )
 }

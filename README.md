@@ -32,6 +32,8 @@ Create **`.env.local`** for the Next.js app (public contract address only):
 
 ```env
 NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS=0x...
+# Optional: canonical URL for social share links (e.g. https://your-app.vercel.app)
+# NEXT_PUBLIC_APP_URL=https://...
 ```
 
 ## Scripts
