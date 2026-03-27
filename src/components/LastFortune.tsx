@@ -89,17 +89,17 @@ export function LastFortune() {
     return () => clearTimeout(t)
   }, [isRevealing])
 
-  if (!isConnected) return <p className="text-zinc-600">Cüzdanını bağla.</p>
+  if (!isConnected) return <p className="text-zinc-600">Connect your wallet to see your fortune.</p>
   if (FORTUNE_COOKIE_ADDRESS === '0x0000000000000000000000000000000000000000') {
     return (
       <p className="text-zinc-600">
-        Contract adresi yok. `.env.local` içine `NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS`
-        ekleyeceğiz (deploy sonrası).
+        Contract address missing. Add <code className="rounded bg-zinc-100 px-1">NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS</code> to{' '}
+        <code className="rounded bg-zinc-100 px-1">.env.local</code>.
       </p>
     )
   }
-  if (isLoading && data === undefined) return <p className="text-zinc-600">Loading...</p>
-  if (isError && data === undefined) return <p className="text-zinc-600">Okuma başarısız.</p>
+  if (isLoading && data === undefined) return <p className="text-zinc-600">Loading…</p>
+  if (isError && data === undefined) return <p className="text-zinc-600">Could not read the contract.</p>
 
   const totalForUser = totalOpened
   const hasFortune = typeof totalOpened === 'bigint' ? totalOpened > 0 : false
@@ -122,7 +122,7 @@ export function LastFortune() {
         </div>
       )}
       <div className="flex items-center justify-between gap-4">
-        <h2 className="text-lg font-semibold">Son Kurabiye</h2>
+        <h2 className="text-lg font-semibold">Latest cookie</h2>
         <span className={['rounded-full border px-3 py-1 text-sm', theme.pill].join(' ')}>
           {rarityLabel(rarityNum)}
         </span>
@@ -133,15 +133,15 @@ export function LastFortune() {
           isRevealing ? 'animate-pulse' : '',
         ].join(' ')}
       >
-        {hasFortune ? message : 'Henüz kurabiye açmadın. İlk açışı yap, şansı görelim.'}
+        {hasFortune ? message : 'No cookie yet. Tap “Open Fortune Cookie” below.'}
       </p>
       <div className="mt-4 text-sm text-zinc-600">
         <div>
-          Toplam açtığın:{' '}
+          Total opened:{' '}
           {typeof totalForUser === 'bigint' ? totalForUser.toString() : '—'}
         </div>
         <div>
-          Zaman:{' '}
+          Time:{' '}
           {typeof openedAt === 'bigint'
             ? new Date(Number(openedAt) * 1000).toLocaleString()
             : '—'}
