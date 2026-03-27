@@ -54,6 +54,7 @@ NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS=0x...
 | `npm run build` | Production build |
 | `npm run lint` | ESLint |
 | `npm run hh:compile` | Compile Solidity |
+| `npm run hh:test` | Hardhat tests for `FortuneCookie` |
 | `npm run hh:deploy:base` | Deploy `FortuneCookie` to Base mainnet |
 | `npm run hh:deploy:baseSepolia` | Deploy to Base Sepolia (if configured) |
 | `npm run hh:verify:base` | Verify deployed contract on [Basescan](https://basescan.org) (needs `BASESCAN_API_KEY` + `CONTRACT_ADDRESS`) |
@@ -79,6 +80,7 @@ Constructor arguments must match `scripts/deploy.js` (currently `priceWei = 0`, 
 
 - Source: `contracts/FortuneCookie.sol`
 - Deploy script: `scripts/deploy.js`
+- Owner can call `cancelPendingOwnership()` to abort a two-step ownership handover if the pending address was wrong.
 
 ## Security notes
 

@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "hh:compile": "hardhat compile",
+    "hh:test": "hardhat test",
     "hh:deploy:base": "hardhat run scripts/deploy.js --network base",
     "hh:deploy:baseSepolia": "hardhat run scripts/deploy.js --network baseSepolia",
     "hh:verify:base": "hardhat run scripts/verify.js --network base",

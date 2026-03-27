@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
+/// @title FortuneCookie
+/// @notice Opens assign a pseudo-random message id and rarity; randomness is miner-influenced (not VRF).
+/// @dev Uses custom errors, reentrancy guard on value transfers, and two-step ownership.
 contract FortuneCookie {
     struct Fortune {
         uint8 rarity; // 0 common, 1 rare, 2 legendary
@@ -14,6 +17,7 @@ contract FortuneCookie {
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     event Paused(bool paused);
     event PriceUpdated(uint256 previousPrice, uint256 newPrice);
+    event OwnershipTransferCancelled(address indexed cancelledPending);
 
     address public owner;
     address public pendingOwner;
@@ -41,6 +45,8 @@ contract FortuneCookie {
     error RefundFailed();
     error FortunePageTooLarge();
     error ZeroAddress();
+    error OwnershipUnchanged();
+    error NoPendingOwnership();
 
     modifier onlyOwner() {
         if (msg.sender != owner) revert NotOwner();
@@ -59,6 +65,8 @@ contract FortuneCookie {
         _status = 1;
     }
 
+    /// @param _priceWei Minimum wei sent with `openCookie` (excess refunded).
+    /// @param _messageCount Number of message ids; must be positive (modulo for messageId).
     constructor(uint256 _priceWei, uint16 _messageCount) {
         if (_messageCount == 0) revert InvalidMessageCount();
         owner = msg.sender;
@@ -77,8 +85,17 @@ contract FortuneCookie {
 
     function transferOwnership(address newOwner) external onlyOwner {
         if (newOwner == address(0)) revert ZeroAddress();
+        if (newOwner == owner) revert OwnershipUnchanged();
         pendingOwner = newOwner;
         emit OwnershipTransferInitiated(owner, newOwner);
+    }
+
+    /// @notice Owner can clear a pending two-step transfer (e.g. wrong address typed).
+    function cancelPendingOwnership() external onlyOwner {
+        if (pendingOwner == address(0)) revert NoPendingOwnership();
+        address p = pendingOwner;
+        pendingOwner = address(0);
+        emit OwnershipTransferCancelled(p);
     }
 
     function acceptOwnership() external {
@@ -118,9 +135,10 @@ contract FortuneCookie {
         uint64 newCount = openedCount[msg.sender] + 1;
         openedCount[msg.sender] = newCount;
 
+        // abi.encode (not packed) avoids ambiguous concatenation for hashing.
         uint256 seed = uint256(
             keccak256(
-                abi.encodePacked(
+                abi.encode(
                     block.prevrandao,
                     block.number,
                     msg.sender,
