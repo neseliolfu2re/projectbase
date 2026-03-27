@@ -10,6 +10,10 @@ contract FortuneCookie {
     }
 
     event CookieOpened(address indexed user, uint8 rarity, uint16 messageId, uint64 openedAt, uint64 totalOpened);
+    event OwnershipTransferInitiated(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event Paused(bool paused);
+    event PriceUpdated(uint256 previousPrice, uint256 newPrice);
 
     address public owner;
     address public pendingOwner;
@@ -19,25 +23,24 @@ contract FortuneCookie {
     mapping(address => Fortune[]) private _history;
     mapping(address => uint64) public openedCount;
 
+    /// @notice Max items per `getFortunes` page to bound eth_call work (view DoS mitigation).
+    uint256 public constant MAX_FORTUNE_PAGE = 100;
+
+    uint256 private _status = 1; // nonReentrancy guard: 1 = not entered, 2 = entered
+    bool public paused;
+
     error NotOwner();
     error PendingOwnerOnly();
     error PausedState();
     error InsufficientValue(uint256 required, uint256 provided);
     error InvalidMessageCount();
     error Reentrancy();
-
-    constructor(uint256 _priceWei, uint16 _messageCount) {
-        if (_messageCount == 0) revert InvalidMessageCount();
-        owner = msg.sender;
-        priceWei = _priceWei;
-        messageCount = _messageCount;
-    }
-
-    uint256 private _status = 1; // nonReentrancy guard: 1 = not entered, 2 = entered
-
-    event OwnershipTransferInitiated(address indexed previousOwner, address indexed newOwner);
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-    event Paused(bool paused);
+    error DirectEthNotAccepted();
+    error InvalidWithdrawRecipient();
+    error WithdrawFailed();
+    error RefundFailed();
+    error FortunePageTooLarge();
+    error ZeroAddress();
 
     modifier onlyOwner() {
         if (msg.sender != owner) revert NotOwner();
@@ -56,10 +59,24 @@ contract FortuneCookie {
         _status = 1;
     }
 
-    bool public paused;
+    constructor(uint256 _priceWei, uint16 _messageCount) {
+        if (_messageCount == 0) revert InvalidMessageCount();
+        owner = msg.sender;
+        priceWei = _priceWei;
+        messageCount = _messageCount;
+    }
+
+    /// @dev Reject plain ETH; use `openCookie` so value and accounting stay explicit.
+    receive() external payable {
+        revert DirectEthNotAccepted();
+    }
+
+    fallback() external payable {
+        revert DirectEthNotAccepted();
+    }
 
     function transferOwnership(address newOwner) external onlyOwner {
-        require(newOwner != address(0), "ZERO_OWNER");
+        if (newOwner == address(0)) revert ZeroAddress();
         pendingOwner = newOwner;
         emit OwnershipTransferInitiated(owner, newOwner);
     }
@@ -73,7 +90,9 @@ contract FortuneCookie {
     }
 
     function setPrice(uint256 _priceWei) external onlyOwner {
+        uint256 previous = priceWei;
         priceWei = _priceWei;
+        emit PriceUpdated(previous, _priceWei);
     }
 
     function pause() external onlyOwner {
@@ -87,8 +106,9 @@ contract FortuneCookie {
     }
 
     function withdraw(address payable to) external onlyOwner nonReentrant {
+        if (to == address(0)) revert InvalidWithdrawRecipient();
         (bool ok, ) = to.call{value: address(this).balance}("");
-        require(ok, "WITHDRAW_FAILED");
+        if (!ok) revert WithdrawFailed();
     }
 
     function openCookie() external payable nonReentrant whenNotPaused {
@@ -128,7 +148,7 @@ contract FortuneCookie {
         uint256 excess = msg.value - required;
         if (excess > 0) {
             (bool ok, ) = payable(msg.sender).call{value: excess}("");
-            require(ok, "REFUND_FAILED");
+            if (!ok) revert RefundFailed();
         }
     }
 
@@ -155,6 +175,8 @@ contract FortuneCookie {
             uint64 totalOpened
         )
     {
+        if (count > MAX_FORTUNE_PAGE) revert FortunePageTooLarge();
+
         uint64 len64 = openedCount[user];
         uint256 len = uint256(len64);
         totalOpened = len64;

@@ -85,6 +85,8 @@ Constructor arguments must match `scripts/deploy.js` (currently `priceWei = 0`, 
 - Do **not** push `.env` or `.env.local` (they are ignored).
 - `DEPLOYER_PRIVATE_KEY` is only for deploying from your machine.
 - The fortune text is resolved off-chain from `messageId` in `src/config/fortuneCookie.ts`; onchain you store ids and rarity.
+- **Contract (onchain):** plain ETH transfers to the contract (no calldata / wrong selector) revert; `withdraw` rejects the zero address; `getFortunes` pages are capped (`MAX_FORTUNE_PAGE`) to limit heavy `eth_call` requests; admin price changes emit `PriceUpdated`. After changing `contracts/FortuneCookie.sol`, **redeploy** and update `NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS`.
+- **App:** HTTP security headers are set in `next.config.ts`. The UI reads `priceWei` and `paused` from the chain and uses `useSimulateContract` before sending so the wallet matches current rules.
 
 ## Repo
 

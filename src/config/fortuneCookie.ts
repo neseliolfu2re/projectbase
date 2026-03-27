@@ -5,6 +5,20 @@ export const FORTUNE_COOKIE_ADDRESS = (process.env
 export const fortuneCookieAbi = [
   {
     type: 'function',
+    name: 'priceWei',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'paused',
+    inputs: [],
+    outputs: [{ name: '', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'openCookie',
     inputs: [],
     outputs: [],
