@@ -3,6 +3,8 @@ import { LastFortune } from '@/components/LastFortune'
 import { OpenCookie } from '@/components/OpenCookie'
 import { FortuneHistory } from '@/components/FortuneHistory'
 import { FortuneEventFeed } from '@/components/FortuneEventFeed'
+import { WelcomeBanner } from '@/components/WelcomeBanner'
+import { HowItWorks } from '@/components/HowItWorks'
 
 export default function Home() {
   return (
@@ -17,7 +19,10 @@ export default function Home() {
             <span className="text-sm text-zinc-500">Onchain fortune cookies</span>
           </div>
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">
+            <h1 className="flex flex-wrap items-center justify-center gap-2 text-3xl font-bold tracking-tight text-zinc-900 sm:justify-start sm:text-4xl">
+              <span aria-hidden className="select-none text-4xl sm:text-5xl">
+                🥠
+              </span>
               Fortune Cookie
             </h1>
             <p className="max-w-xl text-base leading-relaxed text-zinc-600 sm:text-lg">
@@ -26,6 +31,10 @@ export default function Home() {
             </p>
           </div>
         </header>
+
+        <WelcomeBanner />
+
+        <HowItWorks />
 
         <section className="fc-card space-y-4">
           <div>

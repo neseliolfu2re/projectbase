@@ -14,6 +14,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { formatEther } from 'viem'
 import { base } from 'wagmi/chains'
 import { FORTUNE_COOKIE_ADDRESS, fortuneCookieAbi } from '@/config/fortuneCookie'
+import { useEthUsd } from '@/hooks/useEthUsd'
 
 const ZERO = '0x0000000000000000000000000000000000000000' as const
 
@@ -69,6 +70,19 @@ export function OpenCookie() {
     chainId === base.id &&
     stateReady &&
     !paused
+
+  const needUsdApprox =
+    isConnected &&
+    contractConfigured &&
+    chainId === base.id &&
+    stateReady &&
+    !paused &&
+    priceWei !== undefined &&
+    priceWei > 0n
+
+  const { data: liveUsdPerEth, isError: usdLiveFailed } = useEthUsd({
+    enabled: needUsdApprox,
+  })
 
   const { data: simulateData, error: simulateError, isFetching: simFetching } =
     useSimulateContract({
@@ -146,16 +160,28 @@ export function OpenCookie() {
       ? `${formatEther(priceWei)} ETH`
       : 'free'
 
-  const ethUsdHint = process.env.NEXT_PUBLIC_ETH_USD_HINT
-  const usdPerEth =
-    ethUsdHint !== undefined && ethUsdHint !== '' ? Number(ethUsdHint) : NaN
+  const envUsdFallback = Number(process.env.NEXT_PUBLIC_ETH_USD_HINT)
+  const resolvedUsdPerEth =
+    liveUsdPerEth !== undefined && Number.isFinite(liveUsdPerEth) && liveUsdPerEth > 0
+      ? liveUsdPerEth
+      : Number.isFinite(envUsdFallback) && envUsdFallback > 0
+        ? envUsdFallback
+        : NaN
   const usdExtra =
     priceWei !== undefined &&
     priceWei > 0n &&
-    Number.isFinite(usdPerEth) &&
-    usdPerEth > 0
-      ? usdApproxLabel(priceWei, usdPerEth)
+    Number.isFinite(resolvedUsdPerEth) &&
+    resolvedUsdPerEth > 0
+      ? usdApproxLabel(priceWei, resolvedUsdPerEth)
       : ''
+  const usdSourceLabel =
+    usdExtra && needUsdApprox
+      ? usdLiveFailed && Number.isFinite(envUsdFallback)
+        ? 'env fallback'
+        : !usdLiveFailed && liveUsdPerEth !== undefined
+          ? 'CoinGecko · ~1m'
+          : null
+      : null
 
   return (
     <div className="flex flex-col items-center gap-3 sm:items-start">
@@ -168,6 +194,9 @@ export function OpenCookie() {
           </>
         ) : null}
       </p>
+      {usdSourceLabel && (
+        <p className="text-center text-xs text-zinc-400 sm:text-left">{usdSourceLabel}</p>
+      )}
       <button
         type="button"
         onClick={() => {
