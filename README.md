@@ -58,6 +58,20 @@ NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS=0x...
 
 **Vercel (or similar):** add the same `NEXT_PUBLIC_*` variables in the project settings so production builds pick up the contract address, `NEXT_PUBLIC_APP_URL` (metadata / OG), optional RPC, WalletConnect, and optional `NEXT_PUBLIC_ETH_USD_HINT`.
 
+### Production environment (Vercel) — what to set and why
+
+These are **not** committed to git; you add them in **Vercel → Project → Settings → Environment Variables** (Production / Preview as you prefer), then **Redeploy** so the Next.js build embeds the `NEXT_PUBLIC_*` values.
+
+| Variable | Required? | What it does |
+|----------|-----------|----------------|
+| `NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS` | **Yes** for a working app | Tells the UI which `FortuneCookie` contract on Base to call. If missing or `0x000…0`, opens and reads do not hit your deployment. |
+| `NEXT_PUBLIC_APP_URL` | **Strongly recommended** | Canonical site URL (e.g. `https://your-app.vercel.app`). Used as `metadataBase` for **Open Graph / Twitter** absolute URLs, and for **WalletConnect** metadata when set. Without it, social previews may use `localhost` or wrong links. |
+| `NEXT_PUBLIC_GITHUB_REPO_URL` | Optional | Overrides the default **Source on GitHub** link in the footer (useful for a fork or different repo). |
+
+Other optional `NEXT_PUBLIC_*` vars (RPC, WalletConnect, ETH/USD hint) behave the same locally and on Vercel; set them if you use those features.
+
+**After changing env vars:** trigger a new deployment (Deployments → … → Redeploy), because `NEXT_PUBLIC_*` is inlined at **build** time.
+
 ## Scripts
 
 | Command | Description |
