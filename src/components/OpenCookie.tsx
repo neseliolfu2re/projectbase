@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import {
   useAccount,
   useChainId,
@@ -15,6 +15,7 @@ import { formatEther } from 'viem'
 import { base } from 'wagmi/chains'
 import { FORTUNE_COOKIE_ADDRESS, fortuneCookieAbi } from '@/config/fortuneCookie'
 import { useEthUsd } from '@/hooks/useEthUsd'
+import { celebrateOpenCookieTx } from '@/lib/celebrateTx'
 
 const ZERO = '0x0000000000000000000000000000000000000000' as const
 
@@ -35,6 +36,7 @@ export function OpenCookie() {
     hash,
   })
   const queryClient = useQueryClient()
+  const celebratedHashRef = useRef<string | null>(null)
 
   const contractConfigured = FORTUNE_COOKIE_ADDRESS !== ZERO
 
@@ -101,6 +103,13 @@ export function OpenCookie() {
       queryClient.invalidateQueries()
     }
   }, [isSuccess, queryClient])
+
+  useEffect(() => {
+    if (!isSuccess || !hash) return
+    if (celebratedHashRef.current === hash) return
+    celebratedHashRef.current = hash
+    celebrateOpenCookieTx()
+  }, [isSuccess, hash])
 
   if (!isConnected) {
     return (
@@ -225,12 +234,41 @@ export function OpenCookie() {
         </p>
       )}
       {isSuccess && (
-        <p className="text-sm font-medium text-emerald-700" role="status">
-          Confirmed on Base.
-        </p>
+        <div
+          className="fc-tx-success flex w-full max-w-md flex-col gap-3 rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/98 via-white to-sky-50/50 px-5 py-4 shadow-[0_8px_30px_rgba(16,185,129,0.12)]"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex items-start gap-3">
+            <span
+              className="fc-tx-success-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-md"
+              aria-hidden
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </span>
+            <div className="min-w-0 flex-1 text-left">
+              <p className="text-base font-semibold text-emerald-900">Cookie opened!</p>
+              <p className="mt-0.5 text-sm leading-relaxed text-emerald-800/95">
+                Confirmed on Base — scroll down for your fortune and history.
+              </p>
+            </div>
+          </div>
+          {hash ? (
+            <a
+              className="text-sm font-semibold text-[#0052ff] underline decoration-blue-200 underline-offset-2 hover:decoration-[#0052ff]"
+              href={`https://basescan.org/tx/${hash}`}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              View on Basescan →
+            </a>
+          ) : null}
+        </div>
       )}
       {error && <p className="max-w-full text-center text-sm text-red-600 sm:text-left">{error.message}</p>}
-      {hash && (
+      {hash && !isSuccess ? (
         <a
           className="text-sm font-medium text-[#0052ff] underline decoration-blue-200 underline-offset-2 hover:decoration-[#0052ff]"
           href={`https://basescan.org/tx/${hash}`}
@@ -239,7 +277,7 @@ export function OpenCookie() {
         >
           View on Basescan →
         </a>
-      )}
+      ) : null}
     </div>
   )
 }
