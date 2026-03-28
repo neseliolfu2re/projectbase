@@ -117,6 +117,13 @@ Constructor arguments must match `scripts/deploy.js` (currently `priceWei = 0`, 
 - **Contract (onchain):** plain ETH transfers to the contract (no calldata / wrong selector) revert; `withdraw` rejects the zero address; `getFortunes` pages are capped (`MAX_FORTUNE_PAGE`) to limit heavy `eth_call` requests; admin price changes emit `PriceUpdated`. After changing `contracts/FortuneCookie.sol`, **redeploy** and update `NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS`.
 - **App:** HTTP security headers are set in `next.config.ts`. The UI reads `priceWei` and `paused` from the chain and uses `useSimulateContract` before sending so the wallet matches current rules.
 
+## Mini app (Farcaster / Base App)
+
+- **Entry URL:** `/mini` on your deployed domain — same UI as `/`, plus `MiniAppReady` (calls `sdk.actions.ready()` from [`@farcaster/miniapp-sdk`](https://www.npmjs.com/package/@farcaster/miniapp-sdk)) and a short “mini app entry” note.
+- **Manifest:** [`/.well-known/farcaster.json`](https://miniapps.farcaster.xyz/docs/specification) is served via rewrite to `/api/well-known/farcaster` (see `src/lib/farcasterManifest.ts`). Set **`NEXT_PUBLIC_APP_URL`** in production so `homeUrl`, `iconUrl`, etc. are correct.
+- **Domain association:** optional env **`FARCASTER_ACCOUNT_ASSOCIATION_JSON`** — JSON object for `accountAssociation` once you complete the [Farcaster publishing](https://miniapps.farcaster.xyz/docs/guides/publishing) signing flow. Without it, some discovery features may be limited.
+- **Base App (2026+):** Base is moving toward [standard web apps + Base.dev registration](https://docs.base.org/mini-apps/quickstart/existing-apps/create-manifest); keep this manifest for Warpcast/Farcaster clients and register the app on [Base.dev](https://www.base.dev/) for the Base App.
+
 ## Repo
 
 Remote: [github.com/neseliolfu2re/projectbase](https://github.com/neseliolfu2re/projectbase)

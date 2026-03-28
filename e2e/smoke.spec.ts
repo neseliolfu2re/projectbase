@@ -25,3 +25,11 @@ test("footer has growth links", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Build on Base" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Source on GitHub" })).toBeVisible();
 });
+
+test("mini app route loads", async ({ page }) => {
+  await page.goto("/mini");
+  await expect(
+    page.getByRole("heading", { name: "Fortune Cookie" }),
+  ).toBeVisible();
+  await expect(page.getByText(/Mini app entry/i)).toBeVisible();
+});

@@ -5,6 +5,14 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname),
   },
+  async rewrites() {
+    return [
+      {
+        source: "/.well-known/farcaster.json",
+        destination: "/api/well-known/farcaster",
+      },
+    ];
+  },
   async headers() {
     return [
       {
