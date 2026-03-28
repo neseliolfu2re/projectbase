@@ -21,17 +21,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Compile contracts
-        run: npm run hh:compile
-
-      - name: Test contracts
-        run: npm run hh:test
-
-      - name: Build
-        run: npm run build
+      - name: Lint, contracts, and Next build
+        run: npm run check
         env:
           # Build succeeds without a real deployed address (UI shows connect/deploy hints).
           NEXT_PUBLIC_FORTUNE_COOKIE_ADDRESS: "0x0000000000000000000000000000000000000000"

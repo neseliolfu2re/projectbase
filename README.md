@@ -10,7 +10,7 @@ A small onchain “fortune cookie” dApp on [Base](https://base.org): connect a
 
 ## CI
 
-GitHub Actions runs `lint`, Hardhat `compile` + `test`, `npm run build`, and Playwright E2E smoke on pushes and pull requests to `main` / `master`.
+GitHub Actions runs `npm run check` (lint + contract compile/test + Next build), then Playwright E2E smoke, on pushes and pull requests to `main` / `master`.
 
 ## Deploy checklist (order)
 
@@ -79,6 +79,7 @@ Other optional `NEXT_PUBLIC_*` vars (RPC, WalletConnect, ETH/USD hint) behave th
 | `npm run dev` | Next.js dev server |
 | `npm run build` | Production build |
 | `npm run lint` | ESLint |
+| `npm run check` | `lint` + Hardhat compile + contract tests + `next build` (run before push; set `NEXT_PUBLIC_*` for build if needed) |
 | `npm run test:e2e` | Playwright smoke (`e2e/`) — run `npm run build` first in CI, or use `npm run dev` locally |
 | `npm run hh:compile` | Compile Solidity |
 | `npm run hh:test` | Hardhat tests for `FortuneCookie` |
