@@ -188,7 +188,7 @@ export function OpenCookie() {
       ? usdLiveFailed && Number.isFinite(envUsdFallback)
         ? 'env fallback'
         : !usdLiveFailed && liveUsdPerEth !== undefined
-          ? 'CoinGecko · ~1m'
+          ? 'CoinGecko · ~10m cache'
           : null
       : null
 

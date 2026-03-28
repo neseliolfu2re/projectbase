@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
+import { ETH_USD_CACHE_SECONDS } from '@/lib/ethUsdCache'
 
-export const revalidate = 60
+/** Must equal `ETH_USD_CACHE_SECONDS` (Next.js requires a static literal here). */
+export const revalidate = 600
 
 const COINGECKO =
   'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
@@ -8,7 +10,7 @@ const COINGECKO =
 export async function GET() {
   try {
     const res = await fetch(COINGECKO, {
-      next: { revalidate: 60 },
+      next: { revalidate: ETH_USD_CACHE_SECONDS },
       headers: { Accept: 'application/json' },
     })
     if (!res.ok) {

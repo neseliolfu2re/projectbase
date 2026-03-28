@@ -1,8 +1,11 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import { ETH_USD_CACHE_SECONDS } from '@/lib/ethUsdCache'
 
 type Opts = { enabled?: boolean }
+
+const staleMs = ETH_USD_CACHE_SECONDS * 1000
 
 /**
  * Approximate ETH/USD for UI only. Tries `/api/eth-usd` (CoinGecko via server),
@@ -20,8 +23,8 @@ export function useEthUsd(opts?: Opts) {
       }
       return json.usdPerEth
     },
-    staleTime: 60_000,
-    gcTime: 5 * 60_000,
+    staleTime: staleMs,
+    gcTime: staleMs * 2,
     retry: 1,
     refetchOnWindowFocus: false,
     enabled: opts?.enabled !== false,

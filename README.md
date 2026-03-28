@@ -5,7 +5,7 @@ A small onchain “fortune cookie” dApp on [Base](https://base.org): connect a
 ## Stack
 
 - **Frontend:** Next.js (App Router), Tailwind CSS, [wagmi](https://wagmi.sh/) + [viem](https://viem.sh/), TanStack Query, `@base-org/account`
-- **Approx. ETH/USD (UI):** `GET /api/eth-usd` proxies [CoinGecko](https://www.coingecko.com/) with ~60s cache; if that fails, the UI can fall back to optional `NEXT_PUBLIC_ETH_USD_HINT`.
+- **Approx. ETH/USD (UI):** `GET /api/eth-usd` proxies [CoinGecko](https://www.coingecko.com/) with **~10 minute** server cache (`src/lib/ethUsdCache.ts`) to reduce rate limits; if that fails, the UI can fall back to optional `NEXT_PUBLIC_ETH_USD_HINT`.
 - **Contracts:** Solidity, [Hardhat](https://hardhat.org/)
 
 ## CI
